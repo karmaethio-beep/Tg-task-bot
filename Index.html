@@ -1,1119 +1,2087 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>💰 TASK PANEL · Earn Money</title>
-  
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-compat.js"></script>
-  
-  <!-- Telegram WebApp -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
-  <!-- Monetag Ad SDK -->
-  <script src='//libtl.com/sdk.js' data-zone='10730906' data-sdk='show_10730906'></script>
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>G Task - Earn Crypto by Completing Tasks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    :root {
-      --primary: #8B5CF6;
-      --primary-dark: #7C3AED;
-      --secondary: #EC4899;
-      --success: #10B981;
-      --warning: #F59E0B;
-      --danger: #EF4444;
-      --dark: #1F2937;
-      --light: #F9FAFB;
-      --gray: #9CA3AF;
-      --border: #E5E7EB;
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #1a2a3a;
+        }
 
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding-bottom: 80px;
-      position: relative;
-    }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    /* Toast */
-    #toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-150%);
-      background: var(--dark);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 50px;
-      font-weight: 500;
-      z-index: 10000;
-      transition: transform 0.3s;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      max-width: 90%;
-    }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-    #toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
 
-    #toast.success { background: var(--success); }
-    #toast.error { background: var(--danger); }
-    #toast.warning { background: var(--warning); }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
-    /* Tab Bar */
-    .tab-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 8px 20px;
-      box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-      z-index: 1000;
-      border-radius: 30px 30px 0 0;
-    }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-    .tab-btn {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: transparent;
-      border: none;
-      color: var(--gray);
-      font-size: 0.7rem;
-      font-weight: 500;
-      padding: 8px 0;
-      border-radius: 30px;
-      transition: all 0.3s;
-      gap: 4px;
-      cursor: pointer;
-    }
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
-    .tab-btn i {
-      font-size: 1.5rem;
-    }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      transform: translateY(-4px);
-      box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
-    }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
 
-    /* Tab Content */
-    .tab-content {
-      display: none;
-      padding: 20px 16px;
-    }
+        .logo i {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
-    .tab-content.active {
-      display: block;
-    }
+        .logo span {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
-    /* Cards */
-    .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 30px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
 
-    /* Profile Header */
-    .profile-header {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 15px;
-    }
+        .nav-link {
+            padding: 0.6rem 1.2rem;
+            text-decoration: none;
+            color: #4a5568;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-weight: 500;
+            cursor: pointer;
+        }
 
-    .avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 3px solid var(--primary);
-    }
+        .nav-link:hover {
+            background: #f7fafc;
+            color: #667eea;
+        }
 
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin: 15px 0;
-    }
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
 
-    .stat-card {
-      background: linear-gradient(135deg, #f3f4f6, #ffffff);
-      padding: 15px;
-      border-radius: 20px;
-      text-align: center;
-    }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-    .stat-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #4a5568;
+        }
 
-    .stat-label {
-      color: var(--gray);
-      font-size: 0.8rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
 
-    /* Announcement Banner */
-    .announcement {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      padding: 15px 20px;
-      border-radius: 20px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: pulse 2s infinite;
-    }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.9; }
-    }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
 
-    /* Task Card */
-    .task-card {
-      background: white;
-      border-radius: 20px;
-      padding: 15px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+        }
 
-    .task-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
+        }
 
-    .task-name {
-      font-weight: 600;
-      font-size: 1.1rem;
-    }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
 
-    .task-type {
-      background: #f3f4f6;
-      padding: 4px 12px;
-      border-radius: 50px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--primary);
-    }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
 
-    .task-reward {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--success);
-      margin: 10px 0;
-    }
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
 
-    .task-actions {
-      display: flex;
-      gap: 10px;
-    }
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
 
-    /* Buttons */
-    .btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 50px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      flex: 1;
-    }
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-    }
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
 
-    .btn-success {
-      background: var(--success);
-      color: white;
-    }
+        /* Hero Section */
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
 
-    .btn-outline {
-      background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-    }
+        .hero-content {
+            max-width: 800px;
+            margin-bottom: 4rem;
+        }
 
-    .btn-sm {
-      padding: 8px 16px;
-      font-size: 0.9rem;
-    }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
 
-    /* Forms */
-    .input-group {
-      margin-bottom: 15px;
-    }
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            color: white;
+        }
 
-    .input-group label {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--dark);
-      font-weight: 500;
-    }
+        .gradient-text {
+            background: linear-gradient(135deg, #ffd89b, #c7e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
-    .input-field {
-      width: 100%;
-      padding: 15px 20px;
-      border: 2px solid var(--border);
-      border-radius: 30px;
-      font-size: 1rem;
-    }
+        .hero-description {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
 
-    .input-field:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-    /* Referral Box */
-    .referral-box {
-      background: #f3f4f6;
-      border-radius: 50px;
-      padding: 12px 15px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      border: 2px dashed var(--primary);
-    }
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-    .referral-link {
-      font-size: 0.85rem;
-      color: var(--gray);
-      word-break: break-all;
-    }
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
 
-    /* Search */
-    .search-box {
-      background: white;
-      border-radius: 50px;
-      padding: 12px 20px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+        .card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
 
-    .search-box input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      font-size: 1rem;
-    }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
 
-    .search-box input:focus {
-      outline: none;
-    }
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
 
-    /* Withdrawal Item */
-    .withdrawal-item {
-      background: white;
-      border-radius: 20px;
-      padding: 15px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
 
-    .status-badge {
-      padding: 4px 12px;
-      border-radius: 50px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #667eea;
+        }
 
-    .status-pending { background: #FEF3C7; color: #92400E; }
-    .status-approved { background: #D1FAE5; color: #065F46; }
-    .status-rejected { background: #FEE2E2; color: #991B1B; }
+        .stat-card .stat-label {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
 
-    /* Loading */
-    .skeleton {
-      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-      border-radius: 30px;
-      height: 80px;
-      margin: 10px 0;
-    }
+        .stat-card .stat-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 2rem;
+            opacity: 0.1;
+        }
 
-    @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
+        /* Features */
+        .features {
+            padding: 4rem 2rem;
+            background: white;
+        }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--gray);
-    }
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
 
-    .empty-state i {
-      font-size: 3rem;
-      margin-bottom: 10px;
-    }
-  </style>
+        .section-subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 24px;
+            text-align: center;
+            transition: all 0.3s;
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Task Grid */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #e9ecef;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .task-reward {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #28a745;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .task-data {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 16px;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+        }
+
+        .data-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .data-label {
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .data-value {
+            font-family: monospace;
+            background: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: #e9ecef;
+            border: none;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #dee2e6;
+        }
+
+        /* Auth Container */
+        .auth-page {
+            min-height: calc(100vh - 80px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .auth-form {
+            background: white;
+            border-radius: 32px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .auth-header h2 {
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+
+        .auth-header p {
+            color: #718096;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.85rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 0.3rem;
+            color: #718096;
+            font-size: 0.75rem;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Telegram Warning */
+        .telegram-warning {
+            background: linear-gradient(135deg, #e3f2fd, #bbdef5);
+            border: 2px solid #0088cc;
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .telegram-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #0088cc;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            margin-top: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .telegram-link:hover {
+            background: #006699;
+            transform: scale(1.02);
+        }
+
+        .bot-name {
+            background: #0088cc;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        /* Code Input */
+        .code-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .code-input {
+            flex: 1;
+            text-align: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            letter-spacing: 8px;
+            font-family: monospace;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .reward-cell {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        /* Leaderboard */
+        .leaderboard-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 16px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .leaderboard-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .leaderboard-rank {
+            font-size: 1.2rem;
+            font-weight: 700;
+            min-width: 50px;
+        }
+
+        .leaderboard-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .leaderboard-stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Profile */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-stats .stat-item {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .profile-stats .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        /* Withdraw */
+        .withdraw-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        /* Admin Panel */
+        .admin-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+        }
+
+        .admin-badge {
+            background: #dc3545;
+            color: white;
+        }
+
+        .pending-item {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 0.75rem;
+        }
+
+        .pending-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .pending-report {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-buttons {
+            padding: 1.5rem;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .task-type-selector {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: #e9ecef;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .type-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast-success {
+            background: #28a745;
+        }
+
+        .toast-error {
+            background: #dc3545;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #e9ecef;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #718096;
+            padding: 2rem;
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #718096;
+        }
+
+        .auth-switch a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .nav-links.show {
+                display: flex;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .stats-grid, .task-grid, .profile-grid, .withdraw-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+        }
+
+        footer {
+            background: #1a2a3a;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-  <!-- Toast -->
-  <div id="toast"></div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-tasks"></i>
+                <span>G Task</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a class="nav-link" onclick="showPage('home')">Home</a>
+                <a class="nav-link" onclick="showPage('dashboard')">Dashboard</a>
+                <a class="nav-link" onclick="showPage('tasks')">Tasks</a>
+                <a class="nav-link" onclick="showPage('withdraw')">Withdraw</a>
+                <a class="nav-link" onclick="showPage('leaderboard')">Leaderboard</a>
+                <a class="nav-link" onclick="showPage('profile')">Profile</a>
+            </div>
+            <div class="user-info" id="userInfo"></div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
 
-  <!-- Tab Contents -->
-  <div id="tab-dashboard" class="tab-content active"></div>
-  <div id="tab-tasks" class="tab-content"></div>
-  <div id="tab-withdraw" class="tab-content"></div>
-  <div id="tab-profile" class="tab-content"></div>
+    <div id="mainContainer" class="container"></div>
 
-  <!-- Bottom Tab Bar -->
-  <div class="tab-bar">
-    <button class="tab-btn active" data-tab="dashboard">
-      <i class="fas fa-home"></i>
-      <span>Home</span>
-    </button>
-    <button class="tab-btn" data-tab="tasks">
-      <i class="fas fa-tasks"></i>
-      <span>Tasks</span>
-    </button>
-    <button class="tab-btn" data-tab="withdraw">
-      <i class="fas fa-wallet"></i>
-      <span>Withdraw</span>
-    </button>
-    <button class="tab-btn" data-tab="profile">
-      <i class="fas fa-user"></i>
-      <span>Profile</span>
-    </button>
-  </div>
+    <footer>
+        <div class="footer-content">
+            <p><i class="fas fa-tasks"></i> G Task - Earn Crypto by Completing Tasks</p>
+            <p>© 2024 G Task. All rights reserved.</p>
+            <p>🤖 Bot: @G_task_bot | Instant USDT Payouts</p>
+        </div>
+    </footer>
 
-  <script>
-    // ===== FIREBASE CONFIG (YOUR CONFIGURATION) =====
-    const firebaseConfig = {
-      apiKey: "AIzaSyAjBxfY94Ye4fGO6uNN-Y73PwvDHa-aR3I",
-      authDomain: "tg-task-bot-d8a74.firebaseapp.com",
-      projectId: "tg-task-bot-d8a74",
-      storageBucket: "tg-task-bot-d8a74.firebasestorage.app",
-      messagingSenderId: "72738148295",
-      appId: "1:72738148295:web:06b9bc5c8509b93f4bd3e2"
-    };
+    <script>
+        // ==================== DATA STORAGE ====================
+        let currentUser = null;
+        let currentPage = 'home';
+        let tasks = [];
+        let users = [];
+        let reports = [];
+        let withdrawals = [];
+        let verificationCodes = new Map();
 
-    // ===== BOT CONFIGURATION =====
-    const BOT_USERNAME = "G_task_bot";
-    const CHANNEL_LINK = "https://t.me/G_task_bot";
-    const COMMUNITY_LINK = "https://t.me/g_tasks_chat";
-    const APP_URL = "https://karmaethio-beep.github.io/Tg-task-bot";
+        // Admin credentials - ONLY soba
+        const ADMIN_USERNAME = 'soba';
+        const ADMIN_PASSWORD = 'Esu@4841';
+        const BOT_USERNAME = '@G_task_bot';
 
-    // ===== GLOBAL STATE =====
-    let app, db;
-    let tg = window.Telegram?.WebApp;
-    let tgUser = null;
-    let currentUserId = null;
-    let userData = null;
-    let userDocRef = null;
-    let allTasks = [];
-    let claimedTasks = new Set();
-    let unsubscribeUser = null;
-    let unsubscribeTasks = null;
+        // ==================== INITIALIZATION ====================
+        function initData() {
+            // Load from localStorage
+            const savedUsers = localStorage.getItem('gtask_users');
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            } else {
+                users = [{
+                    id: 1,
+                    username: 'soba',
+                    password: 'Esu@4841',
+                    isAdmin: true,
+                    balance: 0,
+                    totalEarned: 0,
+                    totalWithdrawn: 0,
+                    approvedReports: 0,
+                    joinedDate: new Date().toISOString(),
+                    telegramId: null
+                }];
+                saveUsers();
+            }
 
-    // ===== TOAST =====
-    function showToast(message, type = 'info') {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.className = 'toast show ' + type;
-      setTimeout(() => toast.classList.remove('show'), 3000);
-    }
+            const savedTasks = localStorage.getItem('gtask_tasks');
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            } else {
+                tasks = [
+                    {
+                        id: 1,
+                        type: 'gmail',
+                        title: 'Gmail Account Verification (3 Day Check)',
+                        reward: 0.17,
+                        data: {
+                            email: 'christinadgarcia49p6@gmail.com',
+                            password: 'OcVKWmteeh',
+                            firstName: 'Shirley',
+                            rezMail: 'troyruizo3quqn@gmx.com'
+                        },
+                        instructions: 'Login to the Gmail account using provided credentials. Check inbox for verification emails. Keep the account active for 3 days.'
+                    },
+                    {
+                        id: 2,
+                        type: 'instagram',
+                        title: 'Create Instagram Account (Mobile Only)',
+                        reward: 0.02,
+                        data: {
+                            login: 'Igl_svndip__007',
+                            password: 'uYzOCYM8Q6E',
+                            firstName: 'Sandip mahiya',
+                            email: 'danteroththmq+bokdOf@outlook.com'
+                        },
+                        instructions: 'Use mobile device only. Create new Instagram account using provided credentials.'
+                    }
+                ];
+                saveTasks();
+            }
 
-    // ===== INIT TELEGRAM =====
-    function initTelegram() {
-      if (tg) {
-        tg.expand();
-        tg.ready();
-        tgUser = tg.initDataUnsafe?.user;
+            const savedReports = localStorage.getItem('gtask_reports');
+            if (savedReports) reports = JSON.parse(savedReports);
+            else reports = [];
+
+            const savedWithdrawals = localStorage.getItem('gtask_withdrawals');
+            if (savedWithdrawals) withdrawals = JSON.parse(savedWithdrawals);
+            else withdrawals = [];
+        }
+
+        function saveUsers() { localStorage.setItem('gtask_users', JSON.stringify(users)); }
+        function saveTasks() { localStorage.setItem('gtask_tasks', JSON.stringify(tasks)); }
+        function saveReports() { localStorage.setItem('gtask_reports', JSON.stringify(reports)); }
+        function saveWithdrawals() { localStorage.setItem('gtask_withdrawals', JSON.stringify(withdrawals)); }
+
+        // ==================== HELPER FUNCTIONS ====================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('navLinks').classList.toggle('show');
+        }
+
+        function checkAuthStatus() {
+            const userInfoDiv = document.getElementById('userInfo');
+            const token = localStorage.getItem('gtask_token');
+            const savedUser = localStorage.getItem('gtask_user');
+            
+            if (token && savedUser) {
+                currentUser = JSON.parse(savedUser);
+                userInfoDiv.innerHTML = `
+                    <span style="font-weight: 600; color: #28a745;">
+                        <i class="fas fa-wallet"></i> $${(currentUser.balance || 0).toFixed(3)}
+                    </span>
+                    <span><i class="fas fa-user"></i> ${currentUser.username}</span>
+                    <button class="btn btn-outline btn-sm" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `;
+            } else {
+                currentUser = null;
+                userInfoDiv.innerHTML = `
+                    <span>Not logged in</span>
+                    <button class="btn btn-outline btn-sm" onclick="showLoginModal()">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                `;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('gtask_token');
+            localStorage.removeItem('gtask_user');
+            currentUser = null;
+            showToast('Logged out successfully!', 'success');
+            showPage('home');
+            checkAuthStatus();
+        }
+
+        // ==================== PAGE RENDERING ====================
+        function showPage(page) {
+            currentPage = page;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.innerText.toLowerCase().includes(page.toLowerCase())) {
+                    link.classList.add('active');
+                }
+            });
+            
+            if (page === 'home') renderHome();
+            else if (page === 'dashboard') renderDashboard();
+            else if (page === 'tasks') renderTasks();
+            else if (page === 'withdraw') renderWithdraw();
+            else if (page === 'leaderboard') renderLeaderboard();
+            else if (page === 'profile') renderProfile();
+        }
+
+        function renderHome() {
+            const container = document.getElementById('mainContainer');
+            container.innerHTML = `
+                <section class="hero">
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <i class="fas fa-bolt"></i> Platform is active — Start earning now
+                        </div>
+                        <h1 class="hero-title">
+                            Earn Real Money<br>
+                            <span class="gradient-text">Completing Simple Tasks</span>
+                        </h1>
+                        <p class="hero-description">
+                            Join thousands of users who earn money daily by completing simple online tasks.<br>
+                            Instant payouts in USDT (BEP-20). No experience needed.
+                        </p>
+                        <div class="hero-buttons">
+                            <button class="btn btn-primary btn-large" onclick="showLoginModal()">
+                                <i class="fas fa-rocket"></i> Start Earning Now
+                            </button>
+                            <button class="btn btn-outline btn-large" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">
+                                <i class="fas fa-info-circle"></i> How It Works
+                            </button>
+                        </div>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-card" style="animation-delay: 0s">
+                            <div class="stat-value">${users.length}+</div>
+                            <div class="stat-label">ACTIVE USERS</div>
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        </div>
+                        <div class="stat-card" style="animation-delay: 0.1s">
+                            <div class="stat-value">$${(users.reduce((sum, u) => sum + u.totalEarned, 0)).toFixed(0)}+</div>
+                            <div class="stat-label">TOTAL PAID</div>
+                            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                        </div>
+                        <div class="stat-card" style="animation-delay: 0.2s">
+                            <div class="stat-value">${tasks.length}</div>
+                            <div class="stat-label">ACTIVE TASKS</div>
+                            <div class="stat-icon"><i class="fas fa-tasks"></i></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="features" class="features">
+                    <h2 class="section-title">How It Works</h2>
+                    <p class="section-subtitle">Three simple steps to start earning</p>
+                    <div class="features-grid">
+                        <div class="feature-card" style="animation-delay: 0s">
+                            <div class="feature-icon"><i class="fas fa-clipboard-list"></i></div>
+                            <h3>Complete Tasks</h3>
+                            <p>Choose from available tasks and complete them using provided credentials</p>
+                        </div>
+                        <div class="feature-card" style="animation-delay: 0.1s">
+                            <div class="feature-icon"><i class="fas fa-paper-plane"></i></div>
+                            <h3>Submit Report</h3>
+                            <p>Submit proof of completion for admin review</p>
+                        </div>
+                        <div class="feature-card" style="animation-delay: 0.2s">
+                            <div class="feature-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <h3>Get Paid</h3>
+                            <p>Receive USDT directly to your wallet instantly</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="cta" style="background: linear-gradient(135deg, #667eea, #764ba2); padding: 4rem 2rem; text-align: center; color: white;">
+                    <h2>Ready to Start Earning?</h2>
+                    <p style="margin: 1rem 0;">Join thousands of earners and start making money today!</p>
+                    <button class="btn btn-primary btn-large" onclick="showLoginModal()" style="background: white; color: #667eea;">
+                        <i class="fas fa-user-plus"></i> Create Free Account
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            if (!currentUser) { showLoginModal(); return; }
+            
+            const today = new Date().toISOString().split('T')[0];
+            const userReports = reports.filter(r => r.userId === currentUser.id);
+            const approvedToday = userReports.filter(r => r.status === 'approved' && r.date?.split('T')[0] === today).length;
+            const earnedToday = userReports.filter(r => r.status === 'approved' && r.date?.split('T')[0] === today).reduce((sum, r) => sum + r.reward, 0);
+            const pendingReports = userReports.filter(r => r.status === 'pending').length;
+            const recentReports = userReports.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+            
+            const container = document.getElementById('mainContainer');
+            container.innerHTML = `
+                <div class="welcome-section" style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.8rem;">Welcome back, ${currentUser.username} 🥰</h2>
+                    <p>Here's your activity overview for today</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">$${currentUser.balance.toFixed(3)}</div>
+                        <div class="stat-label">AVAILABLE BALANCE</div>
+                        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${approvedToday}</div>
+                        <div class="stat-label">APPROVED TODAY</div>
+                        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">$${earnedToday.toFixed(3)}</div>
+                        <div class="stat-label">EARNED TODAY</div>
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${pendingReports}</div>
+                        <div class="stat-label">PENDING REPORTS</div>
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                        <span class="badge">Last 5 tasks</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead><tr><th>Task</th><th>Status</th><th>Reward</th><th>Date</th></tr></thead>
+                            <tbody>
+                                ${recentReports.length === 0 ? '<tr><td colspan="4" class="empty-state">No activity yet. Start completing tasks!</td></tr>' : 
+                                    recentReports.map(r => `
+                                        <tr>
+                                            <td><strong>${escapeHtml(r.taskTitle)}</strong></td>
+                                            <td><span class="status-badge status-${r.status}">${r.status.toUpperCase()}</span></td>
+                                            <td class="reward-cell">+$${r.reward.toFixed(3)}</td>
+                                            <td>${new Date(r.date).toLocaleString()}</td>
+                                        </tr>
+                                    `).join('')
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    </div>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="showPage('tasks')"><i class="fas fa-tasks"></i> Start Earning</button>
+                        <button class="btn btn-outline" onclick="showPage('withdraw')"><i class="fas fa-money-bill-wave"></i> Withdraw Funds</button>
+                        <button class="btn btn-outline" onclick="showPage('leaderboard')"><i class="fas fa-trophy"></i> View Leaderboard</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTasks() {
+            if (!currentUser) { showLoginModal(); return; }
+            
+            const container = document.getElementById('mainContainer');
+            container.innerHTML = `
+                <div class="page-header" style="margin-bottom: 2rem;">
+                    <h2><i class="fas fa-tasks"></i> Available Tasks</h2>
+                    <p>Complete tasks and earn real money. Each task comes with credentials you need to use.</p>
+                </div>
+                <div class="task-grid" id="tasksGrid"></div>
+            `;
+            
+            const tasksGrid = document.getElementById('tasksGrid');
+            if (tasks.length === 0) {
+                tasksGrid.innerHTML = '<div class="card empty-state"><i class="fas fa-inbox"></i> No tasks available. Check back later!</div>';
+                return;
+            }
+            
+            tasksGrid.innerHTML = tasks.map(task => `
+                <div class="task-card">
+                    <div class="task-badge">${task.type === 'gmail' ? '<i class="fas fa-envelope"></i> GMAIL' : '<i class="fab fa-instagram"></i> INSTAGRAM'}</div>
+                    <div class="task-reward">$${task.reward.toFixed(3)}</div>
+                    <div class="task-title">${escapeHtml(task.title)}</div>
+                    <div class="task-desc">${escapeHtml(task.instructions.substring(0, 80))}...</div>
+                    <div class="task-data">
+                        ${task.type === 'gmail' ? `
+                            <div class="data-row"><span class="data-label"><i class="fas fa-envelope"></i> Email:</span><span class="data-value">${escapeHtml(task.data.email)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(task.data.email)}')"><i class="fas fa-copy"></i> Copy</button></div>
+                            <div class="data-row"><span class="data-label"><i class="fas fa-key"></i> Password:</span><span class="data-value">${escapeHtml(task.data.password)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(task.data.password)}')"><i class="fas fa-copy"></i> Copy</button></div>
+                            <div class="data-row"><span class="data-label"><i class="fas fa-user"></i> First Name:</span><span class="data-value">${escapeHtml(task.data.firstName)}</span></div>
+                        ` : `
+                            <div class="data-row"><span class="data-label"><i class="fas fa-user"></i> Login:</span><span class="data-value">${escapeHtml(task.data.login)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(task.data.login)}')"><i class="fas fa-copy"></i> Copy</button></div>
+                            <div class="data-row"><span class="data-label"><i class="fas fa-key"></i> Password:</span><span class="data-value">${escapeHtml(task.data.password)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(task.data.password)}')"><i class="fas fa-copy"></i> Copy</button></div>
+                            <div class="data-row"><span class="data-label"><i class="fas fa-user-tag"></i> Name:</span><span class="data-value">${escapeHtml(task.data.firstName)}</span></div>
+                            <div class="data-row"><span class="data-label"><i class="fas fa-envelope"></i> Email:</span><span class="data-value">${escapeHtml(task.data.email)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(task.data.email)}')"><i class="fas fa-copy"></i> Copy</button></div>
+                        `}
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="openTaskModal(${task.id})"><i class="fas fa-play"></i> Start Task</button>
+                </div>
+            `).join('');
+        }
+
+        function renderWithdraw() {
+            if (!currentUser) { showLoginModal(); return; }
+            
+            const userWithdrawals = withdrawals.filter(w => w.userId === currentUser.id).sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            const container = document.getElementById('mainContainer');
+            container.innerHTML = `
+                <div class="page-header" style="margin-bottom: 2rem;">
+                    <h2><i class="fas fa-money-bill-wave"></i> Withdraw Funds</h2>
+                    <p>Withdraw your earnings directly to your wallet</p>
+                </div>
+                <div class="withdraw-grid">
+                    <div class="card">
+                        <div class="balance-card">
+                            <span class="balance-label"><i class="fas fa-wallet"></i> Available Balance</span>
+                            <div class="balance-amount">$${currentUser.balance.toFixed(3)}</div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-credit-card"></i> Payment Method</label>
+                            <select id="paymentMethod" class="form-input">
+                                <option value="USDT (BEP-20)">💎 USDT (BEP-20) — Binance Smart Chain</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-qrcode"></i> Wallet Address</label>
+                            <input type="text" id="walletAddress" class="form-input" placeholder="Enter your USDT (BEP-20) wallet address">
+                            <small>Make sure this is a valid BEP-20 address</small>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-dollar-sign"></i> Amount (USD)</label>
+                            <input type="number" id="withdrawAmount" step="0.01" min="0.20" class="form-input" placeholder="Min: $0.20">
+                            <small>Fee: $0.01 per withdrawal</small>
+                        </div>
+                        <button class="btn btn-primary btn-full" onclick="requestWithdraw()"><i class="fas fa-paper-plane"></i> Submit Withdrawal Request</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history"></i> Withdrawal History</h3>
+                            <span class="badge">Last 10 withdrawals</span>
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead><tr><th>Date</th><th>Method</th><th>Amount</th><th>Status</th></tr></thead>
+                                <tbody>
+                                    ${userWithdrawals.length === 0 ? '<tr><td colspan="4" class="empty-state">No withdrawals yet</td></tr>' :
+                                        userWithdrawals.map(w => `
+                                            <tr>
+                                                <td>${new Date(w.date).toLocaleString()}</td>
+                                                <td>${w.method}</td>
+                                                <td class="reward-cell">$${w.amount.toFixed(4)}</td>
+                                                <td><span class="status-badge status-${w.status}">${w.status.toUpperCase()}</span></td>
+                                            </tr>
+                                        `).join('')
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderLeaderboard() {
+            const sortedUsers = [...users].filter(u => u.approvedReports > 0).sort((a,b) => b.approvedReports - a.approvedReports).slice(0, 10);
+            const currentRank = sortedUsers.findIndex(u => u.id === currentUser?.id) + 1;
+            
+            const container = document.getElementById('mainContainer');
+            container.innerHTML = `
+                <div class="page-header" style="margin-bottom: 2rem;">
+                    <h2><i class="fas fa-trophy"></i> Daily Leaderboard</h2>
+                    <p>Top performers receive daily bonuses!</p>
+                </div>
+                <div class="leaderboard-container">
+                    ${currentUser ? `
+                        <div class="card" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                            <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                                <div style="font-size: 2.5rem;"><i class="fas fa-user-circle"></i></div>
+                                <div style="flex: 1;">
+                                    <div style="font-size: 0.85rem; opacity: 0.8;">Your Rank Today</div>
+                                    <div style="font-size: 1.5rem; font-weight: 700;">#${currentRank > 0 ? currentRank : 'N/A'}</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 1.5rem; font-weight: 700;">${reports.filter(r => r.userId === currentUser?.id && r.status === 'approved' && new Date(r.date).toDateString() === new Date().toDateString()).length}</div>
+                                    <div style="font-size: 0.75rem;">Approved Today</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-medal"></i> Top Performers</h3>
+                            <span class="badge">Updated Daily</span>
+                        </div>
+                        <div class="leaderboard-list">
+                            ${sortedUsers.length === 0 ? '<div class="empty-state">No data yet. Start completing tasks!</div>' :
+                                sortedUsers.map((user, idx) => `
+                                    <div class="leaderboard-item">
+                                        <div class="leaderboard-rank">${idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}</div>
+                                        <div class="leaderboard-user">
+                                            <div class="user-avatar">${user.username.charAt(0).toUpperCase()}</div>
+                                            <div class="user-name">${escapeHtml(user.username)}</div>
+                                        </div>
+                                        <div class="leaderboard-stats">
+                                            <div class="stat-item"><span class="stat-value">${user.approvedReports}</span><span class="stat-label">reps</span></div>
+                                            <div class="stat-item"><span class="stat-value">$${user.totalEarned.toFixed(2)}</span><span class="stat-label">earned</span></div>
+                                        </div>
+                                    </div>
+                                `).join('')
+                            }
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div style="display: flex; gap: 1rem; padding: 1rem; background: #e7f3ff; border-radius: 16px;">
+                            <div style="font-size: 2rem;"><i class="fas fa-gift"></i></div>
+                            <div>
+                                <h4>Daily Bonuses</h4>
+                                <p>Top 10 earners receive bonus rewards every day at midnight UTC!</p>
+                                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                                    <li><i class="fas fa-crown"></i> #1: +$5.00 bonus</li>
+                                    <li><i class="fas fa-medal"></i> #2-3: +$2.50 bonus</li>
+                                    <li><i class="fas fa-award"></i> #4-10: +$1.00 bonus</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProfile() {
+            if (!currentUser) { showLoginModal(); return; }
+            
+            const isAdmin = currentUser.username === ADMIN_USERNAME;
+            
+            const container = document.getElementById('mainContainer');
+            container.innerHTML = `
+                <div class="profile-grid">
+                    <div class="card">
+                        <div class="profile-header">
+                            <div class="profile-avatar"><i class="fas fa-user"></i></div>
+                            <div class="profile-info">
+                                <h2>${escapeHtml(currentUser.username)}</h2>
+                                <div class="verified-badge"><i class="fas fa-check-circle"></i> VERIFIED</div>
+                            </div>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="stat-item"><div class="stat-value">$${currentUser.balance.toFixed(3)}</div><div class="stat-label">Balance</div></div>
+                            <div class="stat-item"><div class="stat-value">$${currentUser.totalEarned.toFixed(3)}</div><div class="stat-label">Total Earned</div></div>
+                            <div class="stat-item"><div class="stat-value">$${currentUser.totalWithdrawn.toFixed(3)}</div><div class="stat-label">Total Withdrawn</div></div>
+                            <div class="stat-item"><div class="stat-value">${currentUser.approvedReports}</div><div class="stat-label">Approved Reports</div></div>
+                        </div>
+                        <div class="profile-details">
+                            <p><i class="fas fa-id-card"></i> <strong>User ID:</strong> ${currentUser.id}</p>
+                            <p><i class="fas fa-calendar-alt"></i> <strong>Joined:</strong> ${new Date(currentUser.joinedDate).toLocaleDateString()}</p>
+                            <p><i class="fab fa-telegram"></i> <strong>Telegram:</strong> ${currentUser.telegramId ? `@${currentUser.telegramId}` : 'Not linked'}</p>
+                        </div>
+                        <button class="btn btn-danger btn-full" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                    </div>
+                    ${isAdmin ? `
+                        <div class="card">
+                            <div class="card-header">
+                                <h3><i class="fas fa-crown"></i> Admin Panel</h3>
+                                <span class="badge" style="background: #dc3545; color: white;">Admin Access</span>
+                            </div>
+                            <div style="margin-bottom: 1.5rem;">
+                                <button class="btn btn-primary" onclick="openAdminModal()"><i class="fas fa-plus-circle"></i> Add New Task</button>
+                            </div>
+                            <div>
+                                <h4><i class="fas fa-clock"></i> Pending Reports (${reports.filter(r => r.status === 'pending').length})</h4>
+                                <div id="pendingReportsList"></div>
+                            </div>
+                            <div style="margin-top: 1.5rem;">
+                                <h4><i class="fas fa-money-bill-wave"></i> Pending Withdrawals (${withdrawals.filter(w => w.status === 'pending').length})</h4>
+                                <div id="pendingWithdrawalsList"></div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            if (isAdmin) {
+                renderPendingReports();
+                renderPendingWithdrawals();
+            }
+        }
+
+        function renderPendingReports() {
+            const pendingReports = reports.filter(r => r.status === 'pending');
+            const container = document.getElementById('pendingReportsList');
+            if (pendingReports.length === 0) {
+                container.innerHTML = '<div class="empty-state">No pending reports</div>';
+                return;
+            }
+            const userMap = {};
+            users.forEach(u => userMap[u.id] = u);
+            container.innerHTML = pendingReports.map(r => `
+                <div class="pending-item">
+                    <div><strong>${escapeHtml(userMap[r.userId]?.username || 'Unknown')}</strong> completed "${escapeHtml(r.taskTitle)}"</div>
+                    <div class="pending-report"><i class="fas fa-comment"></i> ${escapeHtml(r.report.substring(0, 100))}${r.report.length > 100 ? '...' : ''}</div>
+                    <div class="pending-actions">
+                        <button class="btn btn-success btn-sm" onclick="approveReport(${r.id})"><i class="fas fa-check"></i> Approve (+$${r.reward})</button>
+                        <button class="btn btn-danger btn-sm" onclick="rejectReport(${r.id})"><i class="fas fa-times"></i> Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPendingWithdrawals() {
+            const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending');
+            const container = document.getElementById('pendingWithdrawalsList');
+            if (pendingWithdrawals.length === 0) {
+                container.innerHTML = '<div class="empty-state">No pending withdrawals</div>';
+                return;
+            }
+            const userMap = {};
+            users.forEach(u => userMap[u.id] = u);
+            container.innerHTML = pendingWithdrawals.map(w => `
+                <div class="pending-item">
+                    <div><strong>${escapeHtml(userMap[w.userId]?.username || 'Unknown')}</strong> requested <strong>$${w.amount}</strong></div>
+                    <div><i class="fas fa-qrcode"></i> Wallet: ${escapeHtml(w.walletAddress.substring(0, 30))}...</div>
+                    <div class="pending-actions">
+                        <button class="btn btn-success btn-sm" onclick="approveWithdrawal(${w.id})"><i class="fas fa-check"></i> Approve</button>
+                        <button class="btn btn-danger btn-sm" onclick="rejectWithdrawal(${w.id})"><i class="fas fa-times"></i> Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== MODAL FUNCTIONS ====================
+        let currentTask = null;
         
-        if (!tgUser) {
-          // Fallback for testing
-          tgUser = { 
-            id: 123456789, 
-            first_name: 'Test User', 
-            photo_url: 'https://via.placeholder.com/100' 
-          };
-        }
-      } else {
-        // Fallback for browser testing
-        tgUser = { 
-          id: 999999, 
-          first_name: 'Browser User', 
-          photo_url: 'https://via.placeholder.com/100' 
-        };
-      }
-    }
-
-    // ===== INIT FIREBASE =====
-    function initFirebase() {
-      try {
-        app = firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-        return true;
-      } catch (error) {
-        console.error('Firebase init error:', error);
-        showToast('Firebase configuration error', 'error');
-        return false;
-      }
-    }
-
-    // ===== CREATE OR FETCH USER =====
-    async function createOrFetchUser() {
-      if (!tgUser) return null;
-      
-      const uid = tgUser.id.toString();
-      currentUserId = uid;
-      const startParam = tg?.initDataUnsafe?.start_param;
-
-      userDocRef = db.collection('users').doc(uid);
-      
-      try {
-        const docSnap = await userDocRef.get();
-
-        if (!docSnap.exists) {
-          // Create new user
-          let refferBy = null;
-          if (startParam && startParam !== uid) {
-            refferBy = startParam;
-          }
-
-          const newUser = {
-            id: uid,
-            name: tgUser.first_name || 'User',
-            photoURL: tgUser.photo_url || 'https://via.placeholder.com/100',
-            coins: 0,
-            reffer: 0,
-            refferBy: refferBy,
-            tasksCompleted: 0,
-            totalWithdrawals: 0,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          };
-
-          await userDocRef.set(newUser);
-          userData = newUser;
-        } else {
-          userData = docSnap.data();
+        function openTaskModal(taskId) {
+            currentTask = tasks.find(t => t.id === taskId);
+            const modalHtml = `
+                <div id="taskModal" class="modal" style="display: flex;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-clipboard-list"></i> ${escapeHtml(currentTask.title)}</h2>
+                            <button class="modal-close" onclick="closeModal('taskModal')">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div><strong><i class="fas fa-tag"></i> Reward:</strong> <span style="color: #28a745; font-weight: 700;">$${currentTask.reward}</span></div>
+                            <div style="margin-top: 1rem;"><strong><i class="fas fa-info-circle"></i> Instructions:</strong><br>${escapeHtml(currentTask.instructions)}</div>
+                            <div style="margin-top: 1rem;"><strong><i class="fas fa-database"></i> Provided Information:</strong></div>
+                            ${currentTask.type === 'gmail' ? `
+                                <div class="data-row"><span class="data-label">Email:</span><span class="data-value">${escapeHtml(currentTask.data.email)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(currentTask.data.email)}')">Copy</button></div>
+                                <div class="data-row"><span class="data-label">Password:</span><span class="data-value">${escapeHtml(currentTask.data.password)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(currentTask.data.password)}')">Copy</button></div>
+                            ` : `
+                                <div class="data-row"><span class="data-label">Login:</span><span class="data-value">${escapeHtml(currentTask.data.login)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(currentTask.data.login)}')">Copy</button></div>
+                                <div class="data-row"><span class="data-label">Password:</span><span class="data-value">${escapeHtml(currentTask.data.password)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(currentTask.data.password)}')">Copy</button></div>
+                                <div class="data-row"><span class="data-label">Email:</span><span class="data-value">${escapeHtml(currentTask.data.email)}</span><button class="copy-btn" onclick="copyText('${escapeHtml(currentTask.data.email)}')">Copy</button></div>
+                            `}
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label><i class="fas fa-edit"></i> Task Completion Proof / Report</label>
+                                <textarea id="taskReport" rows="4" class="form-input" placeholder="Describe how you completed the task or provide proof..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-buttons">
+                            <button class="btn btn-primary" onclick="submitTaskReport()"><i class="fas fa-paper-plane"></i> Submit Report</button>
+                            <button class="btn btn-outline" onclick="closeModal('taskModal')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
 
-        // Listen to user changes
-        if (unsubscribeUser) unsubscribeUser();
-        unsubscribeUser = userDocRef.onSnapshot(snap => {
-          if (snap.exists) {
-            userData = snap.data();
-            refreshCurrentTab();
-          }
-        });
+        function submitTaskReport() {
+            const report = document.getElementById('taskReport')?.value;
+            if (!report) {
+                alert('Please provide a report');
+                return;
+            }
+            
+            reports.push({
+                id: Date.now(),
+                userId: currentUser.id,
+                taskId: currentTask.id,
+                taskTitle: currentTask.title,
+                reward: currentTask.reward,
+                report: report,
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            saveReports();
+            closeModal('taskModal');
+            showToast('✅ Report submitted! Admin will review soon.', 'success');
+        }
 
-        return userData;
-      } catch (error) {
-        console.error('Error:', error);
-        showToast('Error loading user data', 'error');
-        return null;
-      }
-    }
+        function requestWithdraw() {
+            const amount = parseFloat(document.getElementById('withdrawAmount')?.value);
+            const walletAddress = document.getElementById('walletAddress')?.value;
+            const method = document.getElementById('paymentMethod')?.value;
+            
+            if (!walletAddress) { showToast('Please enter wallet address', 'error'); return; }
+            if (isNaN(amount) || amount < 0.20) { showToast('Minimum withdrawal is $0.20', 'error'); return; }
+            if (amount > currentUser.balance) { showToast(`Insufficient balance. You have $${currentUser.balance}`, 'error'); return; }
+            
+            withdrawals.push({
+                id: Date.now(),
+                userId: currentUser.id,
+                amount: amount,
+                method: method,
+                walletAddress: walletAddress,
+                status: 'pending',
+                date: new Date().toISOString()
+            });
+            saveWithdrawals();
+            
+            currentUser.balance -= amount;
+            currentUser.totalWithdrawn += amount;
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if (userIndex !== -1) users[userIndex] = currentUser;
+            saveUsers();
+            localStorage.setItem('gtask_user', JSON.stringify(currentUser));
+            
+            showToast('✅ Withdrawal request submitted!', 'success');
+            renderWithdraw();
+            checkAuthStatus();
+        }
 
-    // ===== LOAD CLAIMED TASKS =====
-    async function loadClaimedTasks() {
-      if (!currentUserId) return;
-      
-      try {
-        const claimsSnapshot = await db.collection('user_claims')
-          .where('userId', '==', currentUserId)
-          .get();
+        // ==================== ADMIN FUNCTIONS ====================
+        function openAdminModal() {
+            const modalHtml = `
+                <div id="adminModal" class="modal" style="display: flex;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-plus-circle"></i> Add New Task</h2>
+                            <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
+                        </div>
+                        <div class="task-type-selector">
+                            <button class="type-btn active" onclick="setTaskType('gmail')"><i class="fas fa-envelope"></i> Gmail Account</button>
+                            <button class="type-btn" onclick="setTaskType('instagram')"><i class="fab fa-instagram"></i> Instagram Account</button>
+                        </div>
+                        <div id="adminTaskForm" style="padding: 1.5rem;"></div>
+                        <div class="modal-buttons">
+                            <button class="btn btn-primary" onclick="addTask()"><i class="fas fa-save"></i> Create Task</button>
+                            <button class="btn btn-outline" onclick="closeModal('adminModal')">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            setTaskType('gmail');
+        }
+
+        function setTaskType(type) {
+            currentTaskType = type;
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const formContainer = document.getElementById('adminTaskForm');
+            if (type === 'gmail') {
+                formContainer.innerHTML = `
+                    <div class="form-group"><label>Task Title</label><input type="text" id="taskTitle" class="form-input" value="Gmail Account Verification"></div>
+                    <div class="form-group"><label>Reward (USD)</label><input type="number" id="taskReward" step="0.01" class="form-input" value="0.17"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="gmailEmail" class="form-input"></div>
+                    <div class="form-group"><label>Password</label><input type="text" id="gmailPassword" class="form-input"></div>
+                    <div class="form-group"><label>First Name</label><input type="text" id="gmailFirstName" class="form-input"></div>
+                    <div class="form-group"><label>Instructions</label><textarea id="taskInstructions" rows="3" class="form-input"></textarea></div>
+                `;
+            } else {
+                formContainer.innerHTML = `
+                    <div class="form-group"><label>Task Title</label><input type="text" id="taskTitle" class="form-input" value="Create Instagram Account"></div>
+                    <div class="form-group"><label>Reward (USD)</label><input type="number" id="taskReward" step="0.01" class="form-input" value="0.02"></div>
+                    <div class="form-group"><label>Login/Username</label><input type="text" id="instLogin" class="form-input"></div>
+                    <div class="form-group"><label>Password</label><input type="text" id="instPassword" class="form-input"></div>
+                    <div class="form-group"><label>Name</label><input type="text" id="instName" class="form-input"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="instEmail" class="form-input"></div>
+                    <div class="form-group"><label>Instructions</label><textarea id="taskInstructions" rows="3" class="form-input"></textarea></div>
+                `;
+            }
+        }
+
+        function addTask() {
+            const title = document.getElementById('taskTitle').value;
+            const reward = parseFloat(document.getElementById('taskReward').value);
+            const instructions = document.getElementById('taskInstructions').value;
+            
+            let data = {};
+            if (currentTaskType === 'gmail') {
+                data = {
+                    email: document.getElementById('gmailEmail').value,
+                    password: document.getElementById('gmailPassword').value,
+                    firstName: document.getElementById('gmailFirstName').value
+                };
+            } else {
+                data = {
+                    login: document.getElementById('instLogin').value,
+                    password: document.getElementById('instPassword').value,
+                    firstName: document.getElementById('instName').value,
+                    email: document.getElementById('instEmail').value
+                };
+            }
+            
+            tasks.push({
+                id: Date.now(),
+                type: currentTaskType,
+                title: title,
+                reward: reward,
+                data: data,
+                instructions: instructions
+            });
+            saveTasks();
+            closeModal('adminModal');
+            showToast('✅ Task added successfully!', 'success');
+            if (currentPage === 'tasks') renderTasks();
+        }
+
+        function approveReport(reportId) {
+            const report = reports.find(r => r.id === reportId);
+            if (report) {
+                report.status = 'approved';
+                const user = users.find(u => u.id === report.userId);
+                if (user) {
+                    user.balance += report.reward;
+                    user.totalEarned += report.reward;
+                    user.approvedReports += 1;
+                    saveUsers();
+                    if (currentUser?.id === user.id) {
+                        currentUser = user;
+                        localStorage.setItem('gtask_user', JSON.stringify(currentUser));
+                        checkAuthStatus();
+                    }
+                }
+                saveReports();
+                showToast(`✅ Report approved! +$${report.reward} added.`, 'success');
+                renderProfile();
+            }
+        }
+
+        function rejectReport(reportId) {
+            const report = reports.find(r => r.id === reportId);
+            if (report) {
+                report.status = 'rejected';
+                saveReports();
+                showToast('❌ Report rejected.', 'success');
+                renderProfile();
+            }
+        }
+
+        function approveWithdrawal(withdrawalId) {
+            const withdrawal = withdrawals.find(w => w.id === withdrawalId);
+            if (withdrawal) {
+                withdrawal.status = 'paid';
+                saveWithdrawals();
+                showToast('✅ Withdrawal approved!', 'success');
+                renderProfile();
+            }
+        }
+
+        function rejectWithdrawal(withdrawalId) {
+            const withdrawal = withdrawals.find(w => w.id === withdrawalId);
+            if (withdrawal) {
+                withdrawal.status = 'rejected';
+                const user = users.find(u => u.id === withdrawal.userId);
+                if (user) {
+                    user.balance += withdrawal.amount;
+                    saveUsers();
+                    if (currentUser?.id === user.id) {
+                        currentUser = user;
+                        localStorage.setItem('gtask_user', JSON.stringify(currentUser));
+                        checkAuthStatus();
+                    }
+                }
+                saveWithdrawals();
+                showToast('❌ Withdrawal rejected. Amount refunded.', 'success');
+                renderProfile();
+            }
+        }
+
+        // ==================== AUTHENTICATION MODAL ====================
+        let tempSignupData = null;
+        let signupStep = 1;
         
-        claimedTasks.clear();
-        claimsSnapshot.forEach(doc => {
-          const taskId = doc.id.replace(`${currentUserId}_`, '');
-          claimedTasks.add(taskId);
-        });
-      } catch (error) {
-        console.error('Error loading claims:', error);
-      }
-    }
-
-    // ===== REFRESH CURRENT TAB =====
-    function refreshCurrentTab() {
-      const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab;
-      if (activeTab === 'dashboard') renderDashboard();
-      else if (activeTab === 'tasks') renderTasks();
-      else if (activeTab === 'withdraw') renderWithdraw();
-      else if (activeTab === 'profile') renderProfile();
-    }
-
-    // ===== RENDER DASHBOARD =====
-    async function renderDashboard() {
-      const el = document.getElementById('tab-dashboard');
-      
-      if (!userData) {
-        el.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
-        return;
-      }
-
-      // Get latest announcement
-      const announcSnapshot = await db.collection('announcements')
-        .orderBy('createdAt', 'desc')
-        .limit(1)
-        .get();
-      
-      const latestAnnouncement = !announcSnapshot.empty ? announcSnapshot.docs[0].data() : null;
-
-      // Get quick tasks (top 3)
-      await loadClaimedTasks();
-      const tasksSnapshot = await db.collection('tasks')
-        .orderBy('createdAt', 'desc')
-        .limit(10)
-        .get();
-      
-      const quickTasks = [];
-      tasksSnapshot.forEach(doc => {
-        const task = { id: doc.id, ...doc.data() };
-        if (!claimedTasks.has(doc.id)) {
-          quickTasks.push(task);
-        }
-      });
-
-      let html = `
-        <div class="glass-card">
-          <div class="profile-header">
-            <img class="avatar" src="${userData.photoURL}" alt="avatar">
-            <div>
-              <h2>${userData.name}</h2>
-              <p style="color: var(--gray);">ID: ${userData.id}</p>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Announcement Banner
-      if (latestAnnouncement) {
-        html += `
-          <div class="announcement">
-            <i class="fas fa-bullhorn"></i>
-            <div>
-              <strong>${latestAnnouncement.title}</strong>
-              <p style="font-size: 0.9rem;">${latestAnnouncement.body || ''}</p>
-            </div>
-          </div>
-        `;
-      }
-
-      // Statistics Cards
-      html += `
-        <div class="stats-grid">
-          <div class="stat-card">
-            <i class="fas fa-rupee-sign" style="color: var(--success);"></i>
-            <div class="stat-value">₹${(userData.coins || 0).toFixed(2)}</div>
-            <div class="stat-label">Balance</div>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-users" style="color: var(--primary);"></i>
-            <div class="stat-value">${userData.reffer || 0}</div>
-            <div class="stat-label">Referrals</div>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-history" style="color: var(--warning);"></i>
-            <div class="stat-value">₹${(userData.totalWithdrawals || 0).toFixed(2)}</div>
-            <div class="stat-label">Withdrawn</div>
-          </div>
-          <div class="stat-card">
-            <i class="fas fa-check-circle" style="color: var(--success);"></i>
-            <div class="stat-value">${userData.tasksCompleted || 0}</div>
-            <div class="stat-label">Completed</div>
-          </div>
-        </div>
-      `;
-
-      // Quick Tasks
-      html += `<h3 style="margin-bottom: 15px;">Quick Tasks</h3>`;
-
-      if (quickTasks.length === 0) {
-        html += `<div class="empty-state"><i class="fas fa-tasks"></i><p>No tasks available</p></div>`;
-      } else {
-        quickTasks.slice(0, 3).forEach(task => {
-          html += renderTaskCard(task);
-        });
-      }
-
-      // Referral Box
-      html += `
-        <div class="referral-box">
-          <div style="flex:1;">
-            <div class="referral-link">https://t.me/${BOT_USERNAME}?start=${userData.id}</div>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="copyReferralLink()">
-            <i class="fas fa-copy"></i>
-          </button>
-        </div>
-      `;
-
-      el.innerHTML = html;
-    }
-
-    // ===== RENDER TASK CARD =====
-    function renderTaskCard(task) {
-      return `
-        <div class="task-card">
-          <div class="task-header">
-            <span class="task-name">${task.name || 'Task'}</span>
-            <span class="task-type">${task.type || 'General'}</span>
-          </div>
-          <div class="task-reward">
-            <i class="fas fa-rupee-sign"></i>
-            ${(task.reward || 0).toFixed(2)}
-          </div>
-          <div class="task-actions">
-            <button class="btn btn-outline btn-sm" onclick="window.open('${task.link || '#'}', '_blank')">
-              <i class="fas fa-external-link-alt"></i> Open
-            </button>
-            <button class="btn btn-success btn-sm" onclick="claimTask('${task.id}', ${task.reward || 0})">
-              <i class="fas fa-check"></i> Claim
-            </button>
-          </div>
-        </div>
-      `;
-    }
-
-    // ===== CLAIM TASK =====
-    async function claimTask(taskId, reward) {
-      if (!currentUserId) {
-        showToast('Please login first', 'error');
-        return;
-      }
-
-      if (claimedTasks.has(taskId)) {
-        showToast('Already claimed this task', 'warning');
-        return;
-      }
-
-      const claimRef = db.collection('user_claims').doc(`${currentUserId}_${taskId}`);
-      const userRef = db.collection('users').doc(currentUserId);
-
-      try {
-        await db.runTransaction(async (transaction) => {
-          const claimDoc = await transaction.get(claimRef);
-          if (claimDoc.exists) {
-            throw new Error('already_claimed');
-          }
-
-          transaction.set(claimRef, {
-            userId: currentUserId,
-            taskId: taskId,
-            claimedAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-
-          transaction.update(userRef, {
-            coins: firebase.firestore.FieldValue.increment(reward),
-            tasksCompleted: firebase.firestore.FieldValue.increment(1)
-          });
-        });
-
-        claimedTasks.add(taskId);
-        showToast(`✅ Claimed ₹${reward.toFixed(2)}!`, 'success');
-        
-        // Refresh dashboard if active
-        if (document.querySelector('[data-tab="dashboard"]').classList.contains('active')) {
-          renderDashboard();
-        } else if (document.querySelector('[data-tab="tasks"]').classList.contains('active')) {
-          renderTasks();
+        function showLoginModal() {
+            const modalHtml = `
+                <div id="authModal" class="modal" style="display: flex;">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-user"></i> Welcome to G Task</h2>
+                            <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
+                        </div>
+                        <div id="authContent"></div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            showLoginForm();
         }
 
-      } catch (error) {
-        if (error.message === 'already_claimed') {
-          showToast('Already claimed', 'warning');
-        } else {
-          console.error('Claim error:', error);
-          showToast('Error claiming task', 'error');
-        }
-      }
-    }
-
-    // ===== MONETAG AD TASK (Rewarded Video) =====
-    async function claimAdReward() {
-      if (!currentUserId) {
-        showToast('Please login first', 'error');
-        return;
-      }
-
-      try {
-        // Show Monetag rewarded ad
-        show_10730906('pop').then(async () => {
-          // User watched ad till the end - reward 50 coins
-          const userRef = db.collection('users').doc(currentUserId);
-          await userRef.update({
-            coins: firebase.firestore.FieldValue.increment(50)
-          });
-          
-          showToast('💰 +₹50 from watching ad!', 'success');
-          
-          // Refresh current tab to update balance
-          refreshCurrentTab();
-          
-        }).catch(e => {
-          // User closed ad or error occurred
-          console.log('Ad not completed or error:', e);
-          showToast('Ad not completed. Try again!', 'warning');
-        });
-      } catch (error) {
-        console.error('Ad claim error:', error);
-        showToast('Error showing advertisement', 'error');
-      }
-    }
-
-    // ===== RENDER TASKS =====
-    async function renderTasks() {
-      const el = document.getElementById('tab-tasks');
-      
-      await loadClaimedTasks();
-
-      el.innerHTML = `
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input type="text" id="taskSearch" placeholder="Search tasks...">
-        </div>
-
-        <div id="tasksList">
-          <div class="skeleton"></div>
-        </div>
-      `;
-
-      const searchInput = document.getElementById('taskSearch');
-      
-      // Load tasks
-      if (unsubscribeTasks) unsubscribeTasks();
-      
-      unsubscribeTasks = db.collection('tasks')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(snap => {
-          allTasks = [];
-          snap.forEach(doc => allTasks.push({ id: doc.id, ...doc.data() }));
-          filterTasks();
-        });
-
-      searchInput.addEventListener('input', filterTasks);
-    }
-
-    function filterTasks() {
-      const searchQuery = document.getElementById('taskSearch')?.value.toLowerCase() || '';
-      
-      let filtered = allTasks.filter(t => !claimedTasks.has(t.id));
-
-      if (searchQuery) {
-        filtered = filtered.filter(t => 
-          t.name?.toLowerCase().includes(searchQuery) || 
-          t.type?.toLowerCase().includes(searchQuery)
-        );
-      }
-
-      const tasksList = document.getElementById('tasksList');
-      if (!tasksList) return;
-
-      if (filtered.length === 0 && claimedTasks.size === allTasks.length) {
-        tasksList.innerHTML = `
-          <div class="empty-state">
-            <i class="fas fa-check-circle" style="color: var(--success);"></i>
-            <p>All tasks completed! 🎉</p>
-          </div>
-        `;
-        return;
-      }
-
-      let html = '';
-      filtered.forEach(task => {
-        html += renderTaskCard(task);
-      });
-
-      // Add permanent Monetag ad task (unlimited)
-      html += `
-        <div class="task-card" style="border: 2px solid var(--warning);">
-          <div class="task-header">
-            <span class="task-name">📺 Watch Video Ad</span>
-            <span class="task-type">Unlimited</span>
-          </div>
-          <div class="task-reward">
-            <i class="fas fa-rupee-sign"></i>
-            50.00
-          </div>
-          <div class="task-actions">
-            <button class="btn btn-success" onclick="claimAdReward()">
-              <i class="fas fa-play"></i> Watch & Earn
-            </button>
-          </div>
-          <p style="font-size: 0.8rem; color: var(--gray); margin-top: 8px;">
-            <i class="fas fa-info-circle"></i> Watch rewarded video to earn
-          </p>
-        </div>
-      `;
-
-      tasksList.innerHTML = html;
-    }
-
-    // ===== RENDER WITHDRAW =====
-    async function renderWithdraw() {
-      const el = document.getElementById('tab-withdraw');
-      
-      if (!userData) {
-        el.innerHTML = '<div class="skeleton"></div>';
-        return;
-      }
-
-      el.innerHTML = `
-        <div class="glass-card">
-          <h3 style="margin-bottom: 20px;">Withdraw Money</h3>
-          
-          <div class="input-group">
-            <label>UPI ID</label>
-            <input type="text" id="upiInput" class="input-field" placeholder="example@okhdfcbank">
-          </div>
-
-          <div class="input-group">
-            <label>Amount (₹)</label>
-            <input type="number" id="amountInput" class="input-field" placeholder="Min ₹20" min="20" step="1">
-          </div>
-
-          <div style="background: #f3f4f6; padding: 15px; border-radius: 20px; margin: 20px 0;">
-            <p><i class="fas fa-info-circle"></i> Your balance: <strong>₹${(userData.coins || 0).toFixed(2)}</strong></p>
-            <p style="font-size: 0.9rem;">Minimum withdrawal: ₹20</p>
-          </div>
-
-          <button class="btn btn-primary" onclick="submitWithdrawal()" style="width: 100%;">
-            <i class="fas fa-paper-plane"></i> Request Withdrawal
-          </button>
-        </div>
-
-        <h3 style="margin: 20px 0 10px;">Recent Withdrawals</h3>
-        <div id="recentWithdrawals"></div>
-      `;
-
-      // Load withdrawals
-      const withdrawalsRef = db.collection('withdrawals')
-        .where('userId', '==', currentUserId)
-        .orderBy('createdAt', 'desc')
-        .limit(3);
-
-      withdrawalsRef.onSnapshot(snap => {
-        const listDiv = document.getElementById('recentWithdrawals');
-        if (!listDiv) return;
-
-        if (snap.empty) {
-          listDiv.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>No withdrawals yet</p></div>';
-          return;
+        function showLoginForm() {
+            const authContent = document.getElementById('authContent');
+            authContent.innerHTML = `
+                <div class="auth-header">
+                    <div class="auth-icon"><i class="fas fa-lock"></i></div>
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to your account</p>
+                </div>
+                <div id="loginError" class="alert alert-error" style="display: none;"></div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="loginUsername" class="form-input" placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i> Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+                <p class="auth-switch">Don't have an account? <a onclick="showSignupForm()">Create one</a></p>
+            `;
         }
 
-        let html = '';
-        snap.forEach(doc => {
-          const w = doc.data();
-          const date = w.createdAt ? new Date(w.createdAt.toDate()).toLocaleDateString() : 'Just now';
-          
-          html += `
-            <div class="withdrawal-item">
-              <div>
-                <strong>₹${w.amount.toFixed(2)}</strong>
-                <p style="font-size: 0.8rem; color: var(--gray);">${date}</p>
-              </div>
-              <div>
-                <span class="status-badge status-${w.status || 'pending'}">${w.status || 'pending'}</span>
-              </div>
-            </div>
-          `;
-        });
+        function showSignupForm() {
+            signupStep = 1;
+            const authContent = document.getElementById('authContent');
+            authContent.innerHTML = `
+                <div class="auth-header">
+                    <div class="auth-icon"><i class="fas fa-user-plus"></i></div>
+                    <h2>Create Account</h2>
+                    <p>Join G Task and start earning</p>
+                </div>
+                <div id="signupError" class="alert alert-error" style="display: none;"></div>
+                <div id="signupStep1">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Username</label>
+                        <input type="text" id="signupUsername" class="form-input" placeholder="Choose a username">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-key"></i> Password</label>
+                        <input type="password" id="signupPassword" class="form-input" placeholder="Choose a password (min 4 chars)">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-check-circle"></i> Confirm Password</label>
+                        <input type="password" id="signupConfirm" class="form-input" placeholder="Confirm password">
+                    </div>
+                    <div class="telegram-warning">
+                        <i class="fab fa-telegram"></i> <strong>IMPORTANT!</strong><br>
+                        You MUST start the bot first to receive your verification code.<br>
+                        <a href="https://t.me/G_task_bot" target="_blank" class="telegram-link">
+                            <i class="fab fa-telegram"></i> Start @G_task_bot
+                        </a>
+                    </div>
+                    <button class="btn btn-primary btn-full" onclick="sendVerificationCode()">
+                        <i class="fab fa-telegram"></i> Get Verification Code
+                    </button>
+                    <p class="auth-switch">Already have an account? <a onclick="showLoginForm()">Sign In</a></p>
+                </div>
+            `;
+        }
 
-        listDiv.innerHTML = html;
-      });
-    }
+        function sendVerificationCode() {
+            const username = document.getElementById('signupUsername')?.value;
+            const password = document.getElementById('signupPassword')?.value;
+            const confirm = document.getElementById('signupConfirm')?.value;
+            
+            if (!username || !password || !confirm) {
+                showAuthError('Please fill all fields');
+                return;
+            }
+            if (password !== confirm) {
+                showAuthError('Passwords do not match');
+                return;
+            }
+            if (password.length < 4) {
+                showAuthError('Password must be at least 4 characters');
+                return;
+            }
+            
+            // Generate random 6-digit code
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            tempSignupData = { username, password, code };
+            
+            // Show code in alert (simulating Telegram bot)
+            alert(`📱 VERIFICATION CODE\n\n${code}\n\nThis is the code you would receive from @G_task_bot on Telegram.\n\nIn production, this would be sent to your Telegram.\n\nCopy this code and paste it in the next step.`);
+            
+            // Show code input step
+            const authContent = document.getElementById('authContent');
+            authContent.innerHTML = `
+                <div class="auth-header">
+                    <div class="auth-icon"><i class="fas fa-qrcode"></i></div>
+                    <h2>Verify Your Account</h2>
+                    <p>Enter the code sent to @G_task_bot</p>
+                </div>
+                <div id="signupError" class="alert alert-error" style="display: none;"></div>
+                <div class="form-group">
+                    <label><i class="fas fa-code"></i> Verification Code</label>
+                    <div class="code-input-group">
+                        <input type="text" id="verificationCode" maxlength="6" class="form-input code-input" placeholder="000000">
+                    </div>
+                    <small>Code sent to <strong>@G_task_bot</strong> on Telegram</small>
+                </div>
+                <button class="btn btn-success btn-full" onclick="completeSignup()">
+                    <i class="fas fa-check-circle"></i> Create Account
+                </button>
+                <button class="btn btn-outline btn-full" onclick="showSignupForm()" style="margin-top: 1rem;">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            `;
+        }
 
-    async function submitWithdrawal() {
-      const upi = document.getElementById('upiInput').value.trim();
-      const amount = parseFloat(document.getElementById('amountInput').value);
+        function completeSignup() {
+            const code = document.getElementById('verificationCode')?.value;
+            if (!code || code !== tempSignupData.code) {
+                showAuthError('Invalid verification code. Please try again.');
+                return;
+            }
+            
+            // Check if username exists
+            if (users.find(u => u.username === tempSignupData.username)) {
+                showAuthError('Username already exists');
+                return;
+            }
+            
+            const newUser = {
+                id: users.length + 1,
+                username: tempSignupData.username,
+                password: tempSignupData.password,
+                isAdmin: tempSignupData.username === ADMIN_USERNAME,
+                balance: 0,
+                totalEarned: 0,
+                totalWithdrawn: 0,
+                approvedReports: 0,
+                joinedDate: new Date().toISOString(),
+                telegramId: null
+            };
+            
+            users.push(newUser);
+            saveUsers();
+            
+            currentUser = newUser;
+            localStorage.setItem('gtask_token', 'dummy_token_' + Date.now());
+            localStorage.setItem('gtask_user', JSON.stringify(currentUser));
+            
+            closeModal('authModal');
+            showToast('🎉 Account created successfully! Welcome to G Task!', 'success');
+            checkAuthStatus();
+            showPage('dashboard');
+        }
 
-      if (!upi) {
-        showToast('Please enter UPI ID', 'error');
-        return;
-      }
+        function handleLogin() {
+            const username = document.getElementById('loginUsername')?.value;
+            const password = document.getElementById('loginPassword')?.value;
+            
+            const user = users.find(u => u.username === username && u.password === password);
+            if (!user) {
+                showAuthError('Invalid username or password');
+                return;
+            }
+            
+            currentUser = user;
+            localStorage.setItem('gtask_token', 'dummy_token_' + Date.now());
+            localStorage.setItem('gtask_user', JSON.stringify(currentUser));
+            
+            closeModal('authModal');
+            showToast('✅ Login successful! Welcome back!', 'success');
+            checkAuthStatus();
+            showPage('dashboard');
+        }
 
-      if (!amount || amount < 20) {
-        showToast('Minimum withdrawal is ₹20', 'error');
-        return;
-      }
+        function showAuthError(message) {
+            const errorDiv = document.getElementById('signupError') || document.getElementById('loginError');
+            if (errorDiv) {
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                errorDiv.style.display = 'block';
+                setTimeout(() => errorDiv.style.display = 'none', 3000);
+            } else {
+                alert(message);
+            }
+        }
 
-      if (amount > (userData?.coins || 0)) {
-        showToast('Insufficient balance', 'error');
-        return;
-      }
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.remove();
+        }
 
-      try {
-        await db.collection('withdrawals').add({
-          userId: currentUserId,
-          upi: upi,
-          amount: amount,
-          status: 'pending',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            showToast('Copied to clipboard!', 'success');
+        }
 
-        showToast('✅ Withdrawal requested!', 'success');
-        
-        document.getElementById('upiInput').value = '';
-        document.getElementById('amountInput').value = '';
+        // ==================== GLOBAL FUNCTIONS ====================
+        window.showPage = showPage;
+        window.showLoginModal = showLoginModal;
+        window.logout = logout;
+        window.copyText = copyText;
+        window.openTaskModal = openTaskModal;
+        window.submitTaskReport = submitTaskReport;
+        window.requestWithdraw = requestWithdraw;
+        window.approveReport = approveReport;
+        window.rejectReport = rejectReport;
+        window.approveWithdrawal = approveWithdrawal;
+        window.rejectWithdrawal = rejectWithdrawal;
+        window.openAdminModal = openAdminModal;
+        window.setTaskType = setTaskType;
+        window.addTask = addTask;
+        window.closeModal = closeModal;
+        window.handleLogin = handleLogin;
+        window.showLoginForm = showLoginForm;
+        window.showSignupForm = showSignupForm;
+        window.sendVerificationCode = sendVerificationCode;
+        window.completeSignup = completeSignup;
+        window.toggleMobileMenu = toggleMobileMenu;
 
-      } catch (error) {
-        console.error('Withdrawal error:', error);
-        showToast('Error requesting withdrawal', 'error');
-      }
-    }
+        let currentTaskType = 'gmail';
 
-    // ===== RENDER PROFILE =====
-    function renderProfile() {
-      if (!userData) return;
-
-      const el = document.getElementById('tab-profile');
-      
-      el.innerHTML = `
-        <div class="glass-card" style="text-align: center;">
-          <img class="avatar" style="width: 100px; height: 100px; margin: 0 auto 20px;" src="${userData.photoURL}" alt="avatar">
-          
-          <h2>${userData.name}</h2>
-          <p style="color: var(--gray); margin: 5px 0;">ID: ${userData.id}</p>
-          
-          <div style="background: #f3f4f6; padding: 15px; border-radius: 30px; margin: 20px 0;">
-            <p><i class="fas fa-user-plus"></i> Referred by: <strong>${userData.refferBy || 'None'}</strong></p>
-          </div>
-
-          <div class="stats-grid">
-            <div class="stat-card">
-              <i class="fas fa-rupee-sign"></i>
-              <div class="stat-value">₹${(userData.coins || 0).toFixed(2)}</div>
-              <div class="stat-label">Balance</div>
-            </div>
-            <div class="stat-card">
-              <i class="fas fa-users"></i>
-              <div class="stat-value">${userData.reffer || 0}</div>
-              <div class="stat-label">Referrals</div>
-            </div>
-            <div class="stat-card">
-              <i class="fas fa-history"></i>
-              <div class="stat-value">₹${(userData.totalWithdrawals || 0).toFixed(2)}</div>
-              <div class="stat-label">Withdrawn</div>
-            </div>
-            <div class="stat-card">
-              <i class="fas fa-check-circle"></i>
-              <div class="stat-value">${userData.tasksCompleted || 0}</div>
-              <div class="stat-label">Tasks</div>
-            </div>
-          </div>
-
-          <div style="display: flex; gap: 10px;">
-            <button class="btn btn-outline" onclick="renderProfile()" style="flex: 1;">
-              <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-            <button class="btn btn-primary" onclick="copyReferralLink()" style="flex: 1;">
-              <i class="fas fa-copy"></i> Copy Link
-            </button>
-          </div>
-        </div>
-      `;
-    }
-
-    // ===== COPY REFERRAL LINK =====
-    function copyReferralLink() {
-      if (!userData) return;
-      
-      const link = `https://t.me/${BOT_USERNAME}?start=${userData.id}`;
-      navigator.clipboard.writeText(link);
-      showToast('📋 Referral link copied!', 'success');
-    }
-
-    // ===== SWITCH TABS =====
-    function switchTabs(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-
-      document.querySelectorAll('.tab-content').forEach(el => {
-        el.classList.remove('active');
-      });
-      document.getElementById(`tab-${tabId}`).classList.add('active');
-
-      switch(tabId) {
-        case 'dashboard':
-          renderDashboard();
-          break;
-        case 'tasks':
-          renderTasks();
-          break;
-        case 'withdraw':
-          renderWithdraw();
-          break;
-        case 'profile':
-          renderProfile();
-          break;
-      }
-    }
-
-    // ===== INIT =====
-    window.addEventListener('load', async () => {
-      initTelegram();
-      
-      if (!initFirebase()) {
-        showToast('Firebase configuration error', 'error');
-        return;
-      }
-
-      await createOrFetchUser();
-      await loadClaimedTasks();
-
-      // Tab click listeners
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const tab = e.currentTarget.dataset.tab;
-          switchTabs(tab);
-        });
-      });
-
-      // Start with dashboard
-      switchTabs('dashboard');
-    });
-
-    // Cleanup
-    window.addEventListener('beforeunload', () => {
-      if (unsubscribeUser) unsubscribeUser();
-      if (unsubscribeTasks) unsubscribeTasks();
-    });
-  </script>
+        // Initialize
+        initData();
+        checkAuthStatus();
+        showPage('home');
+    </script>
 </body>
 </html>
